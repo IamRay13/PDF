@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCUMENT REQUIREMENTS</title>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin: 20px;
+        }
+        .pdf-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        iframe {
+            width: 80%;
+            height: 800px;
+            border: 1px solid #ccc;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <h1>DOCUMENT REQUIREMENTS</h1>
+    <p>Select an option from the dropdown to display the associated PDF:</p>
+
+    <!-- Dropdown Menu -->
+    <select id="dropdown">
+        <option value="">-- Select Option --</option>
+        <option value="6mwt">6MWT</option>
+	 <option value="60m">60month letter</option>
+           </select>
+
+    <!-- PDF Viewer Container -->
+    <div class="pdf-container">
+        <iframe id="pdfViewer" src=""></iframe>
+    </div>
+
+    <script>
+        // JavaScript to Handle Dropdown Selection
+        const dropdown = document.getElementById("dropdown");
+        const pdfViewer = document.getElementById("pdfViewer");
+
+    // Map dropdown values to PDF/Image URLs
+const pdfs = {
+    "6mwt": "assets/6MWT.pdf",
+    "60m": "assets/60monthletter.pdf"
+};
+
+
+
+
+        dropdown.addEventListener("change", function () {
+            const selectedValue = dropdown.value;
+            if (selectedValue && pdfs[selectedValue]) {
+                pdfViewer.src = pdfs[selectedValue];
+                pdfViewer.style.display = "block"; // Show the iframe
+            } else {
+                pdfViewer.style.display = "none"; // Hide the iframe
+            }
+        });
+    </script>
+</body>
+</html>
