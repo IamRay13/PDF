@@ -75,20 +75,20 @@ p {
         const dropdown = document.getElementById("dropdown");
         const pdfViewer = document.getElementById("pdfViewer");
 
-        // Map dropdown values to PDF URLs
+        // Map dropdown values to PDF URLs with #view=Fit to fit page
         const pdfs = {
-            "6mwt": "assets/6MWT.pdf",
-            "ono": "assets/ONO.PDF",
-            "tss": "assets/TSS.PDF",
-            "60m": "assets/60monthletter.pdf",
-            "discontinue": "assets/Discontinue Script.pdf",
-            "poc": "assets/POC Rx.pdf"
+            "6mwt": "assets/6MWT.pdf#view=Fit",
+            "ono": "assets/ONO.PDF#view=Fit",
+            "tss": "assets/TSS.PDF#view=Fit",
+            "60m": "assets/60monthletter.pdf#view=Fit",
+            "discontinue": "assets/Discontinue Script.pdf#view=Fit",
+            "poc": "assets/POC Rx.pdf#view=Fit"
         };
 
         dropdown.addEventListener("change", function () {
             const selectedValue = dropdown.value;
             if (selectedValue && pdfs[selectedValue]) {
-                pdfViewer.src = pdfs[selectedValue];
+                pdfViewer.src = pdfs[selectedValue]; // Append the Fit setting
                 pdfViewer.style.display = "block"; // Show the iframe
             } else {
                 pdfViewer.style.display = "none"; // Hide the iframe
