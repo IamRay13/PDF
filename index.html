@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOCUMENT REQUIREMENTS</title>
+    <title>PDF forms</title>
     <style>
         /* Basic Styling */
         body {
@@ -31,17 +31,19 @@
     </style>
 </head>
 <body>
-    <h1>60MONTH DOCUMENTS</h1>
+    <h1>DOCUMENT REQUIREMENTS</h1>
     <p>Select an option from the dropdown to display the associated PDF:</p>
 
     <!-- Dropdown Menu -->
     <select id="dropdown">
         <option value="">-- Select Option --</option>
         <option value="6mwt">6MWT</option>
-	 <option value="60m">60month letter</option>
-	    <option value="ono">ONO</option>
-	    <option value="tss">TSS</option>
-           </select>
+        <option value="ono">ONO</option>
+        <option value="tss">TSS</option>
+        <option value="60m">60-Month Letter</option>
+        <option value="discontinue">Discontinue Script</option>
+        <option value="poc">POC Rx</option>
+    </select>
 
     <!-- PDF Viewer Container -->
     <div class="pdf-container">
@@ -53,16 +55,15 @@
         const dropdown = document.getElementById("dropdown");
         const pdfViewer = document.getElementById("pdfViewer");
 
-    // Map dropdown values to PDF/Image URLs
-const pdfs = {
-	"tss": "assets/60monthletter.pdf",
-    "6mwt": "assets/6MWT.pdf",
-    "tss": "assets/TSS.PDF",
-"ono": "assets/ONO.PDF"
-};
-
-
-
+        // Map dropdown values to PDF URLs
+        const pdfs = {
+            "6mwt": "assets/6MWT.pdf",
+            "ono": "assets/ONO.PDF",
+            "tss": "assets/TSS.PDF",
+            "60m": "assets/60monthletter.pdf",
+            "discontinue": "assets/Discontinue Script.pdf",
+            "poc": "assets/POC Rx.pdf"
+        };
 
         dropdown.addEventListener("change", function () {
             const selectedValue = dropdown.value;
