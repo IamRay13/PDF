@@ -26,7 +26,7 @@
       padding: 10px;
       font-size: 16px;
       margin: 20px;
-      color: #000; /* Draw ink color (text) is black by default */
+      color: #000; /* Default ink/text color is black */
     }
     /* PDF Viewer Styling */
     .pdf-container {
@@ -39,14 +39,7 @@
       width: 80%;
       height: 800px;
       border: 1px solid #ccc;
-      display: none; /* Hidden by default */
-    }
-    /* Copy Notification */
-    #copyNotice {
-      margin-top: 10px;
-      color: green;
-      font-weight: bold;
-      font-size: 14px;
+      display: none; /* Initially hidden */
     }
   </style>
 </head>
@@ -64,7 +57,6 @@
     <option value="poc">POC Rx</option>
     <option value="60m">60month Letter</option>
   </select>
-  <div id="copyNotice"></div>
 
   <!-- PDF Viewer Container -->
   <div class="pdf-container">
@@ -73,11 +65,10 @@
 
   <script>
     // PDF Dropdown Logic
-
     const dropdown = document.getElementById("dropdown");
     const pdfViewer = document.getElementById("pdfViewer");
-    
-    // Map dropdown values to PDF URLs with "#view=FitH" (fits to width)
+
+    // Map dropdown keys to PDF URLs with the "#view=FitH" parameter for fit-to-width.
     const pdfs = {
       "6mwt": "assets/6MWT.pdf#view=FitH",
       "ono": "assets/ONO.PDF#view=FitH",
@@ -87,71 +78,16 @@
       "poc": "assets/POC Rx.pdf#view=FitH"
     };
 
-    // Returns current date formatted as M/D/YYYY.
-    function getFormattedDate() {
-      const today = new Date();
-      const month = today.getMonth() + 1;
-      const day = today.getDate();
-      const year = today.getFullYear();
-      return month + "/" + day + "/" + year;
-    }
-    
-    // Update each dropdown option to show the current date.
-    function updateDropdownDates() {
-      const currentDate = getFormattedDate();
-      const options = dropdown.options;
-      for (let i = 0; i < options.length; i++) {
-        const option = options[i];
-        if (option.value.trim() === "") continue; // Skip placeholder
-        const dashIndex = option.value.indexOf(" - ");
-        if (dashIndex !== -1) {
-          const templateText = option.value.substring(dashIndex + 3);
-          const newVal = `${currentDate} - ${templateText}`;
-          option.value = newVal;
-          option.text = newVal;
-        }
-      }
-    }
-    
-    // Initialize dropdown options on DOMContentLoaded.
-    document.addEventListener("DOMContentLoaded", updateDropdownDates);
-    
-    // When an option is selected, load the PDF (if mapped) and copy the option text.
+    // When an option is selected, load the corresponding PDF if available.
     dropdown.addEventListener("change", function () {
-      const selectedValue = dropdown.value;
-      if (selectedValue && pdfs[dropdown.options[dropdown.selectedIndex].getAttribute("value")]) {
-        // If a mapped PDF exists, load it.
-        // Note: If your dropdown option values are updated with date,
-        // you might consider using the original key or another mapping mechanism.
-        const originalKey = dropdown.options[dropdown.selectedIndex].getAttribute("data-key") || dropdown.value;
-        if (pdfs[originalKey]) {
-          pdfViewer.src = pdfs[originalKey];
-          pdfViewer.style.display = "block";
-        } else {
-          pdfViewer.style.display = "none";
-        }
-      } else if (selectedValue) {
+      const selectedKey = dropdown.value;
+      if (selectedKey && pdfs[selectedKey]) {
+        pdfViewer.src = pdfs[selectedKey];
+        pdfViewer.style.display = "block";
+      } else {
         pdfViewer.style.display = "none";
       }
-      
-      // Copy the selected value to the clipboard.
-      if (selectedValue) {
-        navigator.clipboard.writeText(selectedValue).then(function () {
-          displayCopyNotice("Copied: " + selectedValue);
-        }).catch(function (err) {
-          console.error("Failed to copy text: ", err);
-        });
-      }
     });
-    
-    // Function to display a temporary notification.
-    function displayCopyNotice(message) {
-      const noticeEl = document.getElementById("copyNotice");
-      noticeEl.innerText = message;
-      setTimeout(function () {
-        noticeEl.innerText = "";
-      }, 3000);
-    }
   </script>
 </body>
 </html>
