@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF Forms</title>
+  <link rel="icon" type="image/jpg" href="PDF icon.jpg">
+  <style>
+    /* Global Settings */
+    body {
+      background-image: url('IMG_7391.jpg');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: right;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    h1, p {
+      color: white;
+      font-family: 'Calibri', sans-serif;
+    }
+    /* Dropdown Styling */
+    select {
+      padding: 10px;
+      font-size: 16px;
+      margin: 20px;
+      color: #000; /* Default ink/text color is black */
+    }
+    /* PDF Viewer Styling */
+    .pdf-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    iframe {
+      width: 80%;
+      height: 800px;
+      border: 1px solid #ccc;
+      display: none; /* Initially hidden */
+    }
+  </style>
+</head>
+<body>
+  <h1>60 Month Restart PDF Forms</h1>
+  <p>Select an option from the dropdown to display the associated PDF:</p>
+
+  <!-- Dropdown Menu -->
+  <select id="dropdown">
+    <option value="">Select Document</option>
+    <option value="6mwt">6MWT</option>
+    <option value="ono">ONO</option>
+    <option value="tss">TSS</option>
+    <option value="discontinue">Discontinue Script</option>
+    <option value="poc">POC Rx</option>
+    <option value="60m">60 Month Letter</option>
+  </select>
+
+  <!-- PDF Viewer Container -->
+  <div class="pdf-container">
+    <iframe id="pdfViewer" src=""></iframe>
+  </div>
+
+  <script>
+    // PDF Dropdown Logic
+    const dropdown = document.getElementById("dropdown");
+    const pdfViewer = document.getElementById("pdfViewer");
+
+    // Map dropdown keys to PDF URLs with the "#view=FitH" parameter for fit-to-width.
+    const pdfs = {
+      "6mwt": "assets/6MWT.pdf#view=FitH",
+      "ono": "assets/ONO.pdf#view=FitH",
+      "tss": "assets/TSS.pdf#view=FitH",
+      "60m": "assets/60monthletter.pdf#view=FitH",
+      "discontinue": "assets/Discontinue Script.pdf#view=FitH",
+      "poc": "assets/POC Rx.pdf#view=FitH"
+    };
+
+    // When an option is selected, load the corresponding PDF if available.
+    dropdown.addEventListener("change", function () {
+      const selectedKey = dropdown.value;
+      if (selectedKey && pdfs[selectedKey]) {
+        pdfViewer.src = pdfs[selectedKey];
+        pdfViewer.style.display = "block";
+      } else {
+        pdfViewer.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
