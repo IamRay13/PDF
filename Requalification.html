@@ -52,6 +52,7 @@
   <select id="dropdown">
     <option value="">Requalification documents</option>
     <option value="cpap">CPAP</option>
+  <option value="oxygen">Oxygen</option>
   </select>
 
   <!-- PDF Viewer Container -->
@@ -66,7 +67,8 @@
 
     // Map dropdown keys to PDF URLs with the "#view=FitH" parameter for fit-to-width.
     const pdfs = {
-      "cpap": "requal/CPAP.pdf#view=FitH"
+      "cpap": "requal/CPAP.pdf#view=FitH",
+      "oxygen": "requal/Oxygen.pdf#view=FitH"
     };
 
     // When an option is selected, load the corresponding PDF if available.
