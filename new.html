@@ -79,14 +79,14 @@
             { name: "Discontinue Script", icon: "fa-file-circle-xmark", color: "bg-slate-500", pdfKey: "discontinue" },
         ];
 
-        // Map keys to PDF URLs. Using absolute paths for GitHub Pages compatibility.
+        // Map keys to PDF URLs. Using absolute paths based on the GitHub repository structure.
         const pdfs = {
-          "6mwt": "https://iamray13.github.io/assets/6MWT.pdf#toolbar=0&view=FitH",
-          "ono": "https://iamray13.github.io/assets/ONO.pdf#toolbar=0&view=FitH",
-          "tss": "https://iamray13.github.io/assets/TSS.pdf#toolbar=0&view=FitH",
-          "60m": "https://iamray13.github.io/assets/60monthletter.pdf#toolbar=0&view=FitH",
-          "discontinue": "https://iamray13.github.io/assets/Discontinue%20Script.pdf#toolbar=0&view=FitH",
-          "poc": "https://iamray13.github.io/assets/POC%20Rx.pdf#toolbar=0&view=FitH",
+          "6mwt": "https://iamray13.github.io/iamray13/assets/6MWT.pdf#toolbar=0&view=FitH",
+          "ono": "https://iamray13.github.io/iamray13/assets/ONO.pdf#toolbar=0&view=FitH",
+          "tss": "https://iamray13.github.io/iamray13/assets/TSS.pdf#toolbar=0&view=FitH",
+          "60m": "https://iamray13.github.io/iamray13/assets/60monthletter.pdf#toolbar=0&view=FitH",
+          "discontinue": "https://iamray13.github.io/iamray13/assets/Discontinue%20Script.pdf#toolbar=0&view=FitH",
+          "poc": "https://iamray13.github.io/iamray13/assets/POC%20Rx.pdf#toolbar=0&view=FitH",
           // Placeholders for other documents
           "abg": "#", 
           "cpap": "#",
@@ -174,12 +174,11 @@
         /**
          * Opens the user's default email client with a pre-filled message.
          * @param {string} docName - The name of the document.
-         * @param {string} url - The URL of the PDF.
+         * @param {string} absoluteUrl - The absolute URL of the PDF.
          */
-        function sendPdf(docName, url) {
+        function sendPdf(docName, absoluteUrl) {
             const subject = encodeURIComponent(`Document: ${docName}`);
-            // Use the full URL directly in the email body
-            const body = encodeURIComponent(`You can view the document at this link:\n${url}`);
+            const body = encodeURIComponent(`You can view the document at this link:\n${absoluteUrl}`);
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
         }
 
