@@ -17,6 +17,10 @@
             height: 70vh; /* Make the viewer tall */
             border: 1px solid #e2e8f0; /* dark:border-gray-600 */
         }
+        /* Hide scrollbar on iframe for a cleaner look, though content might still be scrollable */
+        .pdf-viewer::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -82,8 +86,8 @@
         // Map document names to their corresponding PDF sample URLs.
         // Replace the URLs with the actual paths to your PDF files.
         const pdfUrls = {
-            "6MWT": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            "TSS": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
+            "6MWT": "assets/6MWT.pdf",
+            "TSS": "assets/TSS.pdf",
             "ONO": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
             "ABG": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
             "POC Prescription": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
@@ -144,8 +148,11 @@
             modalActions.innerHTML = ''; // Clear previous actions
 
             if (pdfUrl && pdfUrl !== '#') {
+                // Append #toolbar=0 to the URL to suggest hiding the viewer's toolbar
+                const embedUrl = `${pdfUrl}#toolbar=0`;
+                
                 // If a valid PDF URL exists, embed it
-                modalContent.innerHTML = `<iframe src="${pdfUrl}" class="pdf-viewer rounded-md"></iframe>`;
+                modalContent.innerHTML = `<iframe src="${embedUrl}" class="pdf-viewer rounded-md"></iframe>`;
                 
                 // Add action buttons
                 modalActions.innerHTML = `
