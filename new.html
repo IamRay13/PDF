@@ -11,6 +11,12 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Style for the embedded PDF viewer */
+        .pdf-viewer {
+            width: 100%;
+            height: 70vh; /* Make the viewer tall */
+            border: 1px solid #e2e8f0; /* dark:border-gray-600 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -39,50 +45,74 @@
 
     </div>
 
-    <!-- Modal for document actions -->
+    <!-- Modal for document viewer and actions -->
     <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
-            <div class="flex justify-between items-center mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-full max-h-[90vh] flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 dark:text-white">Document Title</h2>
                 <button onclick="closeModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition">
                     <i class="fas fa-times fa-lg"></i>
                 </button>
             </div>
-            <div class="text-center">
-                 <p class="mb-6 text-gray-600 dark:text-gray-400">Select an action for this document.</p>
-                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                     <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-eye mr-2"></i>View</button>
-                     <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-download mr-2"></i>Download</button>
-                     <button class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-paper-plane mr-2"></i>Send</button>
-                 </div>
+            <div id="modalContent" class="flex-grow overflow-y-auto mb-4">
+                 <!-- PDF viewer will be injected here -->
+            </div>
+            <div id="modalActions" class="flex-shrink-0 text-center">
+                 <!-- Action buttons will be injected here -->
             </div>
         </div>
     </div>
 
 
     <script>
+        // --- DATA ---
+        // List of all documents to display as cards
         const documents = [
-            { name: "6MWT", icon: "fa-person-running", color: "bg-blue-500" },
-            { name: "TSS", icon: "fa-file-medical", color: "bg-green-500" },
-            { name: "ONO", icon: "fa-notes-medical", color: "bg-yellow-500" },
-            { name: "ABG", icon: "fa-vial-circle-check", color: "bg-red-500" },
-            { name: "POC Prescription", icon: "fa-file-prescription", color: "bg-indigo-500" },
-            { name: "60month Restart Contract", icon: "fa-file-signature", color: "bg-purple-500" },
-            { name: "Insurance Form", icon: "fa-shield-halved", color: "bg-teal-500" },
-            { name: "CPAP Requalification", icon: "fa-lungs", color: "bg-orange-500" },
-            { name: "Oxygen Requalification", icon: "fa-mask-ventilator", color: "bg-sky-500" }
+            { name: "6MWT", icon: "fa-person-running", color: "bg-blue-500", pdfKey: "6mwt" },
+            { name: "TSS", icon: "fa-file-medical", color: "bg-green-500", pdfKey: "tss" },
+            { name: "ONO", icon: "fa-notes-medical", color: "bg-yellow-500", pdfKey: "ono" },
+            { name: "ABG", icon: "fa-vial-circle-check", color: "bg-red-500", pdfKey: "abg" },
+            { name: "POC Prescription", icon: "fa-file-prescription", color: "bg-indigo-500", pdfKey: "poc" },
+            { name: "60month Restart Contract", icon: "fa-file-signature", color: "bg-purple-500", pdfKey: "60m" },
+            { name: "CPAP Requalification", icon: "fa-lungs", color: "bg-orange-500", pdfKey: "cpap" },
+            { name: "Oxygen Requalification", icon: "fa-mask-ventilator", color: "bg-sky-500", pdfKey: "oxygen" },
+            { name: "Discontinue Script", icon: "fa-file-circle-xmark", color: "bg-slate-500", pdfKey: "discontinue" },
         ];
 
+        // Map keys to PDF URLs. Placeholders for files not provided yet.
+        const pdfs = {
+          "6mwt": "assets/6MWT.pdf#view=FitH",
+          "ono": "assets/ONO.pdf#view=FitH",
+          "tss": "assets/TSS.pdf#view=FitH",
+          "60m": "assets/60monthletter.pdf#view=FitH",
+          "discontinue": "assets/Discontinue Script.pdf#view=FitH",
+          "poc": "assets/POC Rx.pdf#view=FitH",
+          // Placeholders for other documents
+          "abg": "#", 
+          "cpap": "#",
+          "oxygen": "#"
+        };
+
+
+        // --- ELEMENTS ---
         const documentGrid = document.getElementById('documentGrid');
         const modal = document.getElementById('documentModal');
         const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        const modalActions = document.getElementById('modalActions');
 
-        // Function to render documents
+
+        // --- FUNCTIONS ---
+        /**
+         * Renders the document cards to the grid.
+         * @param {Array} docs - The array of document objects to render.
+         */
         function renderDocuments(docs) {
             documentGrid.innerHTML = ''; // Clear existing documents
             docs.forEach(doc => {
                 const card = `
-                    <div class="document-card ${doc.color} text-white p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" onclick="openModal('${doc.name}')">
+                    <div class="document-card ${doc.color} text-white p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" 
+                         onclick="openModal('${doc.name}', '${doc.pdfKey}')">
                         <div class="flex flex-col items-center text-center">
                             <i class="fas ${doc.icon} fa-3x mb-4"></i>
                             <h3 class="text-xl font-semibold">${doc.name}</h3>
@@ -93,27 +123,89 @@
             });
         }
 
-        // Function to filter documents based on search input
+        /**
+         * Filters documents based on the search input and re-renders the grid.
+         */
         function filterDocuments() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredDocs = documents.filter(doc => doc.name.toLowerCase().includes(searchTerm));
             renderDocuments(filteredDocs);
         }
 
-        // Functions to handle modal
-        function openModal(docName) {
+        /**
+         * Opens the modal, embeds the PDF, and shows relevant actions.
+         * @param {string} docName - The name of the document.
+         * @param {string} pdfKey - The key to find the PDF URL in the `pdfs` object.
+         */
+        function openModal(docName, pdfKey) {
+            const pdfUrl = pdfs[pdfKey];
+            
             modalTitle.textContent = docName;
+            modalContent.innerHTML = ''; // Clear previous content
+            modalActions.innerHTML = ''; // Clear previous actions
+
+            if (pdfUrl && pdfUrl !== '#') {
+                // If a valid PDF URL exists, embed it
+                modalContent.innerHTML = `<iframe src="${pdfUrl}" class="pdf-viewer rounded-md"></iframe>`;
+                
+                // Add action buttons
+                modalActions.innerHTML = `
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">For editing, please download the file and use a PDF application.</p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                         <button onclick="downloadPdf('${pdfUrl}', '${docName}')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-download mr-2"></i>Download for Editing</button>
+                         <button onclick="sendPdf('${docName}', '${pdfUrl}')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-paper-plane mr-2"></i>Send Link</button>
+                    </div>
+                `;
+            } else {
+                // If no PDF is linked, show a message
+                modalContent.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400 py-16">No file is linked for this document yet.</p>`;
+            }
+            
             modal.classList.remove('hidden');
         }
 
+        /**
+         * Closes the action modal.
+         */
         function closeModal() {
             modal.classList.add('hidden');
+            // Important to clear the iframe src to stop any background loading/activity
+            modalContent.innerHTML = '';
         }
 
-        // Initial render
+        /**
+         * Triggers a browser download for the specified PDF.
+         * @param {string} url - The URL of the PDF.
+         * @param {string} docName - The desired filename for the download.
+         */
+        function downloadPdf(url, docName) {
+            const link = document.createElement('a');
+            link.href = url;
+            // Sanitize filename and add .pdf extension
+            const filename = `${docName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /**
+         * Opens the user's default email client with a pre-filled message.
+         * @param {string} docName - The name of the document.
+         * @param {string} url - The URL of the PDF.
+         */
+        function sendPdf(docName, url) {
+            const subject = encodeURIComponent(`Document: ${docName}`);
+            const body = encodeURIComponent(`You can download the document from this link:\n${window.location.origin}/${url}`);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+
+        // --- INITIALIZATION ---
+        // Initial render of all documents
         renderDocuments(documents);
         
-        // Close modal if clicked outside of the modal content
+        // Event listener to close the modal if clicked outside of its content
         window.onclick = function(event) {
             if (event.target == modal) {
                 closeModal();
