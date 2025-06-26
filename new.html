@@ -20,13 +20,18 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.75);
         }
-        /* Ensure all grid items have the same height */
+        /* Ensure all grid items have the same height and a transition */
         .grid-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             aspect-ratio: 1 / 1; /* Ensures a square aspect ratio */
+            transition: transform 0.2s ease-in-out, background-color 0.3s;
+        }
+        /* Add a hover effect for active buttons */
+        .doc-btn:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -49,64 +54,64 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <input type="search" id="document-search" class="block w-full p-4 pl-10 text-sm text-white bg-gray-700 border border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" placeholder="Search for a document...">
+                <input type="search" id="document-search" class="block w-full p-4 pl-10 text-sm text-white bg-gray-800 border border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" placeholder="Search by name (e.g., CPAP, TSS)...">
             </div>
         </div>
 
         <!-- Document Grid -->
-        <main class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <main id="document-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             <!-- 6MWT Button -->
-            <button class="doc-btn grid-item bg-cyan-500 hover:bg-cyan-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/6MWT.pdf" data-title="6MWT Document">
+            <button class="doc-btn grid-item bg-sky-500 hover:bg-sky-600 p-4 rounded-lg shadow-lg" data-pdf-path="assets/6MWT.pdf" data-title="6MWT Document">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 4.06c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5c0 .66-.26 1.28-.71 1.74l-4.79 4.79-1.42-1.42 4.5-4.5c-.2-.11-.43-.17-.68-.17-1.1 0-2 .9-2 2v.06l-1.32 1.32L12 10.5V5.41l1.5-1.35zM4.94 17.56l2.12 2.12 6.36-6.36-2.12-2.12-6.36 6.36zm-3.53 2.12l2.12-2.12L4.95 19l-2.12 2.12c-.78.78-2.05.78-2.83 0s-.78-2.05 0-2.83zM12.05 15l-1.41 1.41L12 17.83l4.24-4.24-2.12-2.12-3.07 3.07z"/></svg>
-                <span class="text-center text-lg font-semibold">6MWT</span>
+                <span class="search-text text-center text-lg font-semibold">6MWT</span>
             </button>
             
             <!-- TSS Button -->
-            <button class="doc-btn grid-item bg-emerald-500 hover:bg-emerald-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/TSS.pdf" data-title="TSS Document">
+            <button class="doc-btn grid-item bg-lime-500 hover:bg-lime-600 p-4 rounded-lg shadow-lg" data-pdf-path="assets/TSS.pdf" data-title="TSS Document">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v4zm-5-6h-2v2h2V5z"/></svg>
-                <span class="text-center text-lg font-semibold">TSS</span>
+                <span class="search-text text-center text-lg font-semibold">TSS</span>
             </button>
 
             <!-- ONO Button -->
-            <button class="doc-btn grid-item bg-amber-500 hover:bg-amber-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/ONO.pdf" data-title="ONO Document">
+            <button class="doc-btn grid-item bg-orange-500 hover:bg-orange-600 p-4 rounded-lg shadow-lg" data-pdf-path="assets/ONO.pdf" data-title="ONO Document">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-                <span class="text-center text-lg font-semibold">ONO</span>
+                <span class="search-text text-center text-lg font-semibold">ONO</span>
             </button>
 
-            <!-- ABG Button (Inactive) -->
-            <div class="grid-item bg-gray-600 p-4 rounded-lg shadow-lg opacity-50 cursor-not-allowed">
+            <!-- ABG Button -->
+            <button class="doc-btn grid-item bg-pink-500 hover:bg-pink-600 p-4 rounded-lg shadow-lg" data-pdf-path="assets/ABG.pdf" data-title="ABG Document">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.33 4.55-8 8.48-8 11.42 0 3.31 2.69 6 6 6 2.24 0 4.25-1.23 5.34-3.07C16.33 19.43 18 19 18 19c1.66 0 3-1.34 3-3 0-2.31-2.9-5.59-8-12z"/></svg>
-                <span class="text-center text-lg font-semibold">ABG</span>
-            </div>
+                <span class="search-text text-center text-lg font-semibold">ABG</span>
+            </button>
 
             <!-- POC Prescription Button -->
-            <button class="doc-btn grid-item bg-fuchsia-500 hover:bg-fuchsia-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/POC Rx.pdf" data-title="POC Prescription">
+            <button class="doc-btn grid-item bg-violet-600 hover:bg-violet-700 p-4 rounded-lg shadow-lg" data-pdf-path="assets/POC Rx.pdf" data-title="POC Prescription">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V7l-5-5zm-1 11h-2v2h-2v-2H8v-2h2V9h2v2h2v2zm1-8V4l4 4h-4z"/></svg>
-                <span class="text-center text-lg font-semibold">POC Prescription</span>
+                <span class="search-text text-center text-lg font-semibold">POC Prescription</span>
             </button>
             
             <!-- 60month Restart Contract Button -->
-            <button class="doc-btn grid-item bg-rose-500 hover:bg-rose-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/60monthletter.pdf" data-title="60 Month Restart Contract">
+            <button class="doc-btn grid-item bg-red-600 hover:bg-red-700 p-4 rounded-lg shadow-lg" data-pdf-path="assets/60monthletter.pdf" data-title="60 Month Restart Contract">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22.7 14.3l-2.5-2.5c-.4-.4-1-.4-1.4 0l-1.1 1.1-6.1-6.1 1.1-1.1c.4-.4.4-1 0-1.4l-2.5-2.5c-.4-.4-1-.4-1.4 0L7 3.1c-.4.4-.4 1 0 1.4l1.1 1.1-8.5 8.5L3 21.4c.4.4 1 .4 1.4 0l2.5-2.5c.4-.4.4-1 0-1.4l-1.1-1.1 6.1-6.1 1.1 1.1c.4.4 1 .4 1.4 0l2.5-2.5 1.1 1.1 4.3 4.3-1.1 1.1c-.4.4-.4 1 0 1.4l2.5 2.5c.4.4 1 .4 1.4 0l1.9-1.9c.3-.5.3-1.1 0-1.5zm-10.8-2.2L3.4 19.6 2 18.2l8.5-8.5 1.4 1.4z"/></svg>
-                <span class="text-center text-lg font-semibold">60month Restart Contract</span>
+                <span class="search-text text-center text-lg font-semibold">60month Restart Contract</span>
             </button>
 
             <!-- CPAP Requalification Button -->
-            <button class="doc-btn grid-item bg-teal-500 hover:bg-teal-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/CPAP.pdf" data-title="CPAP Requalification">
+            <button class="doc-btn grid-item bg-green-600 hover:bg-green-700 p-4 rounded-lg shadow-lg" data-pdf-path="assets/CPAP.pdf" data-title="CPAP Requalification">
                  <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3.34c-1.2.48-2.28 1.34-3.13 2.51l-1.49-1.49C6.63 2.91 8.24 2 10 2v1.34zM21.61 6.27l-1.49 1.49C19.28 6.57 18.2 5.71 17 5.23V4h-2v1.51C13.29 5.8 12 7.01 12 8.5c0 .93.41 1.76 1.08 2.34L10 14H8v-2H5c-1.66 0-3 1.34-3 3v5h5v-3.05c0-.45.09-.88.25-1.29l2.59-6.47c1.1-2.73 3.96-4.49 6.97-4.13.75.09 1.47.33 2.13.7L22 4.39l-.39 1.88zM9 18H4v-1c0-.55.45-1 1-1h3v2z"/></svg>
-                <span class="text-center text-lg font-semibold">CPAP Requalification</span>
+                <span class="search-text text-center text-lg font-semibold">CPAP Requalification</span>
             </button>
             
-             <!-- Oxygen Requalification (Inactive) -->
-            <div class="grid-item bg-gray-600 p-4 rounded-lg shadow-lg opacity-50 cursor-not-allowed">
+             <!-- Oxygen Requalification Button -->
+            <button class="doc-btn grid-item bg-teal-500 hover:bg-teal-600 p-4 rounded-lg shadow-lg" data-pdf-path="assets/Oxygen Requalification.pdf" data-title="Oxygen Requalification Document">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 3.16 1.47 5.96 3.77 7.79l.99-.99C5.1 17.51 4 14.93 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8c0 2.93-1.58 5.48-3.99 6.89l.98.98C20.53 17.96 22 15.16 22 12c0-5.52-4.48-10-10-10zm0 13c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm4.42-3.89c-.31-.9-1.07-1.56-2-1.82V9.5c0-.28-.22-.5-.5-.5s-.5.22-.5.5v.79c-.93.26-1.69.92-2 1.82-.13.37.1.79.5.79h3c.4 0 .63-.42.42-.79z"/></svg>
-                <span class="text-center text-lg font-semibold">Oxygen Requalification</span>
-            </div>
+                <span class="search-text text-center text-lg font-semibold">Oxygen Requalification</span>
+            </button>
             
             <!-- Discontinue Script Button -->
-            <button class="doc-btn grid-item bg-slate-500 hover:bg-slate-600 transition-all duration-300 p-4 rounded-lg shadow-lg" data-pdf-path="assets/Discontinue Script.pdf" data-title="Discontinue Script">
+            <button class="doc-btn grid-item bg-indigo-500 hover:bg-indigo-600 p-4 rounded-lg shadow-lg" data-pdf-path="assets/Discontinue Script.pdf" data-title="Discontinue Script">
                 <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-2.06 9.94L10.5 13.38l-1.44-1.44L8.02 13l1.44 1.44-1.44 1.44 1.04 1.04 1.44-1.44 1.44 1.44 1.04-1.04-1.44-1.44 1.44-1.44-1.04-1.02zM13 9V3.5L18.5 9H13z"/></svg>
-                <span class="text-center text-lg font-semibold">Discontinue Script</span>
+                <span class="search-text text-center text-lg font-semibold">Discontinue Script</span>
             </button>
         </main>
     </div>
@@ -125,74 +130,70 @@
             </div>
             <!-- Modal Body -->
             <div class="p-2 flex-grow">
-                <iframe id="pdf-viewer" class="w-full h-full" frameborder="0"></iframe>
+                <iframe id="pdf-viewer" class="w-full h-full rounded" frameborder="0"></iframe>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Modal Control Script ---
-        const pdfModal = document.getElementById('pdf-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const pdfViewer = document.getElementById('pdf-viewer');
-        const modalTitle = document.getElementById('modal-title');
-        const docButtons = document.querySelectorAll('.doc-btn');
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Modal Control Script ---
+            const pdfModal = document.getElementById('pdf-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const pdfViewer = document.getElementById('pdf-viewer');
+            const modalTitle = document.getElementById('modal-title');
+            const docButtons = document.querySelectorAll('.doc-btn');
 
-        // Function to open the modal with a specific PDF and title
-        const openModal = (pdfPath, title) => {
-            // Set the PDF path and modal title
-            // Note: For demonstration, if a local PDF fails to load due to security, 
-            // a placeholder is used as a fallback.
-            pdfViewer.src = pdfPath;
-            pdfViewer.onerror = () => {
-                console.error(`Could not load PDF from: ${pdfPath}. Make sure the file exists.`);
-                // In a real app, you might show a user-friendly error message here.
+            const openModal = (pdfPath, title) => {
+                pdfViewer.src = pdfPath;
+                modalTitle.textContent = title;
+                pdfModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
             };
-            modalTitle.textContent = title;
-            
-            // Show the modal and prevent background scrolling
-            pdfModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
 
-        // Function to close the modal
-        const closeModal = () => {
-            pdfModal.classList.add('hidden');
-            document.body.style.overflow = '';
-            // Clear the iframe src to stop PDF processing in the background
-            pdfViewer.src = 'about:blank';
-        };
+            const closeModal = () => {
+                pdfModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                pdfViewer.src = 'about:blank';
+            };
 
-        // --- Event Listeners ---
+            docButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const pdfPath = button.dataset.pdfPath;
+                    const title = button.dataset.title;
+                    if (pdfPath && title) {
+                        openModal(pdfPath, title);
+                    }
+                });
+            });
 
-        // Add a click event listener to each document button
-        docButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const pdfPath = button.dataset.pdfPath;
-                const title = button.dataset.title;
-                if (pdfPath && title) {
-                    openModal(pdfPath, title);
-                }
+            closeModalBtn.addEventListener('click', closeModal);
+            pdfModal.addEventListener('click', (event) => {
+                if (event.target === pdfModal) closeModal();
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !pdfModal.classList.contains('hidden')) closeModal();
+            });
+
+            // --- Search Functionality ---
+            const searchInput = document.getElementById('document-search');
+            const gridItems = document.querySelectorAll('#document-grid > *'); // Selects direct children of the grid
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+
+                gridItems.forEach(item => {
+                    // Find the text content within the item to search against
+                    const itemText = item.querySelector('.search-text')?.textContent.toLowerCase() || '';
+
+                    if (itemText.includes(searchTerm)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
             });
         });
-
-        // Close modal when the close button is clicked
-        closeModalBtn.addEventListener('click', closeModal);
-
-        // Close modal when clicking on the backdrop
-        pdfModal.addEventListener('click', (event) => {
-            if (event.target === pdfModal) {
-                closeModal();
-            }
-        });
-        
-        // Close modal with the 'Escape' key
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !pdfModal.classList.contains('hidden')) {
-                closeModal();
-            }
-        });
-
     </script>
 </body>
 </html>
