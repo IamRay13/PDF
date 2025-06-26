@@ -7,19 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- PDF.js library from Mozilla -->
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Style for the embedded PDF viewer */
-        .pdf-viewer {
-            width: 100%;
-            height: 70vh; /* Make the viewer tall */
+        #pdf-render {
             border: 1px solid #e2e8f0; /* dark:border-gray-600 */
+            border-radius: 0.5rem;
         }
-        /* Hide scrollbar on iframe for a cleaner look, though content might still be scrollable */
-        .pdf-viewer::-webkit-scrollbar {
-            display: none;
+        .pdf-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -44,33 +44,35 @@
 
         <!-- Document Grid -->
         <div id="documentGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Document items will be injected here by JavaScript -->
+            <!-- Document items will be injected here -->
         </div>
-
     </div>
 
-    <!-- Modal for document viewer and actions -->
+    <!-- Modal for document viewer -->
     <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-full max-h-[90vh] flex flex-col p-6">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-600 flex-shrink-0">
                 <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 dark:text-white">Document Title</h2>
                 <button onclick="closeModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition">
                     <i class="fas fa-times fa-lg"></i>
                 </button>
             </div>
-            <div id="modalContent" class="flex-grow overflow-y-auto mb-4">
-                 <!-- PDF viewer will be injected here -->
+            <div id="modalContent" class="flex-grow overflow-y-auto p-4 text-center">
+                 <!-- PDF canvas and controls will be injected here -->
+                 <div id="loader" class="py-16">Loading document...</div>
+                 <canvas id="pdf-render" class="hidden"></canvas>
             </div>
-            <div id="modalActions" class="flex-shrink-0 text-center">
-                 <!-- Action buttons will be injected here -->
+            <div id="modalActions" class="flex-shrink-0 p-4 border-t dark:border-gray-600 flex justify-between items-center">
+                 <!-- Pagination and main action buttons -->
             </div>
         </div>
     </div>
 
-
     <script>
+        // Set the workerSrc for PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://mozilla.github.io/pdf.js/build/pdf.worker.js`;
+
         // --- DATA ---
-        // List of all documents to display as cards
         const documents = [
             { name: "6MWT", icon: "fa-person-running", color: "bg-blue-500" },
             { name: "TSS", icon: "fa-file-medical", color: "bg-green-500" },
@@ -83,8 +85,6 @@
             { name: "Discontinue Script", icon: "fa-file-circle-xmark", color: "bg-slate-500" },
         ];
         
-        // Map document names to their corresponding PDF sample URLs.
-        // Replace the URLs with the actual paths to your PDF files.
         const pdfUrls = {
             "6MWT": "assets/6MWT.pdf",
             "TSS": "assets/TSS.pdf",
@@ -94,9 +94,8 @@
             "60month Restart Contract": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
             "CPAP Requalification": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
             "Oxygen Requalification": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
-            "Discontinue Script": "#" // Using '#' to signify no file is linked
+            "Discontinue Script": "#"
         };
-
 
         // --- ELEMENTS ---
         const documentGrid = document.getElementById('documentGrid');
@@ -104,15 +103,20 @@
         const modalTitle = document.getElementById('modalTitle');
         const modalContent = document.getElementById('modalContent');
         const modalActions = document.getElementById('modalActions');
+        const pdfCanvas = document.getElementById('pdf-render');
+        const loader = document.getElementById('loader');
 
+        // --- PDF.js State ---
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageIsRendering = false;
+        let pageNumIsPending = null;
+        const scale = 1.5;
+        const ctx = pdfCanvas.getContext('2d');
 
         // --- FUNCTIONS ---
-        /**
-         * Renders the document cards to the grid.
-         * @param {Array} docs - The array of document objects to render.
-         */
         function renderDocuments(docs) {
-            documentGrid.innerHTML = ''; // Clear existing documents
+            documentGrid.innerHTML = '';
             docs.forEach(doc => {
                 const card = `
                     <div class="document-card ${doc.color} text-white p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" 
@@ -127,73 +131,112 @@
             });
         }
 
-        /**
-         * Filters documents based on the search input and re-renders the grid.
-         */
         function filterDocuments() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredDocs = documents.filter(doc => doc.name.toLowerCase().includes(searchTerm));
             renderDocuments(filteredDocs);
         }
 
-        /**
-         * Opens the modal, embeds the PDF, and shows relevant actions.
-         * @param {string} docName - The name of the document.
-         */
+        const renderPage = num => {
+            pageIsRendering = true;
+            // Get page
+            pdfDoc.getPage(num).then(page => {
+                // Set scale
+                const viewport = page.getViewport({ scale });
+                pdfCanvas.height = viewport.height;
+                pdfCanvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport
+                };
+                page.render(renderContext).promise.then(() => {
+                    pageIsRendering = false;
+                    if (pageNumIsPending !== null) {
+                        renderPage(pageNumIsPending);
+                        pageNumIsPending = null;
+                    }
+                });
+                // Update UI
+                document.getElementById('page-num').textContent = num;
+            });
+        };
+
+        const queueRenderPage = num => {
+            if (pageIsRendering) {
+                pageNumIsPending = num;
+            } else {
+                renderPage(num);
+            }
+        };
+
+        const onPrevPage = () => {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        };
+
+        const onNextPage = () => {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        };
+
         function openModal(docName) {
             const pdfUrl = pdfUrls[docName];
             
             modalTitle.textContent = docName;
-            modalContent.innerHTML = ''; // Clear previous content
-            modalActions.innerHTML = ''; // Clear previous actions
+            modalActions.innerHTML = '';
+            pdfCanvas.classList.add('hidden');
+            loader.classList.remove('hidden');
 
             if (pdfUrl && pdfUrl !== '#') {
-                // Append #toolbar=0 to the URL to suggest hiding the viewer's toolbar
-                const embedUrl = `${pdfUrl}#toolbar=0`;
-                
-                // If a valid PDF URL exists, embed it
-                modalContent.innerHTML = `<iframe src="${embedUrl}" class="pdf-viewer rounded-md"></iframe>`;
-                
-                // Add action buttons
+                // Show loading and fetch document
+                pdfjsLib.getDocument(pdfUrl).promise.then(doc => {
+                    pdfDoc = doc;
+                    document.getElementById('page-count').textContent = pdfDoc.numPages;
+                    renderPage(pageNum);
+
+                    loader.classList.add('hidden');
+                    pdfCanvas.classList.remove('hidden');
+                }).catch(err => {
+                    // CORS policy or other error
+                    console.error("Error loading PDF:", err);
+                    loader.textContent = "Error: Could not load PDF. Check browser console for details.";
+                });
+
+                // Setup modal actions
                 modalActions.innerHTML = `
-                    <div class="flex flex-col sm:flex-row justify-center gap-4">
-                         <button onclick="sendPdf('${docName}', '${pdfUrl}')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-paper-plane mr-2"></i>Send Link</button>
+                    <div class="pdf-controls flex items-center gap-4">
+                        <button id="prev-page" onclick="onPrevPage()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition"><i class="fas fa-arrow-left"></i></button>
+                        <span>Page <span id="page-num"></span> of <span id="page-count"></span></span>
+                        <button id="next-page" onclick="onNextPage()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition"><i class="fas fa-arrow-right"></i></button>
                     </div>
+                    <button onclick="sendPdf('${docName}', '${pdfUrl}')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-paper-plane mr-2"></i>Send Link</button>
                 `;
             } else {
-                // If no PDF is linked, show a message
-                modalContent.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400 py-16">No file is linked for this document yet.</p>`;
+                loader.textContent = 'No file is linked for this document yet.';
             }
             
             modal.classList.remove('hidden');
         }
 
-        /**
-         * Closes the action modal.
-         */
         function closeModal() {
             modal.classList.add('hidden');
-            // Important to clear the iframe src to stop any background loading/activity
-            modalContent.innerHTML = '';
+            // Reset state
+            pdfDoc = null;
+            pageNum = 1;
         }
 
-        /**
-         * Opens the user's default email client with a pre-filled message.
-         * @param {string} docName - The name of the document.
-         * @param {string} absoluteUrl - The absolute URL of the PDF.
-         */
         function sendPdf(docName, absoluteUrl) {
             const subject = encodeURIComponent(`Document: ${docName}`);
             const body = encodeURIComponent(`You can view the document at this link:\n${absoluteUrl}`);
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
         }
 
-
         // --- INITIALIZATION ---
-        // Initial render of all documents
         renderDocuments(documents);
         
-        // Event listener to close the modal if clicked outside of its content
         window.onclick = function(event) {
             if (event.target == modal) {
                 closeModal();
