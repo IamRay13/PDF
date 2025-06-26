@@ -68,18 +68,30 @@
         // --- DATA ---
         // List of all documents to display as cards
         const documents = [
-            { name: "6MWT", icon: "fa-person-running", color: "bg-blue-500", pdfKey: "6mwt" },
-            { name: "TSS", icon: "fa-file-medical", color: "bg-green-500", pdfKey: "tss" },
-            { name: "ONO", icon: "fa-notes-medical", color: "bg-yellow-500", pdfKey: "ono" },
-            { name: "ABG", icon: "fa-vial-circle-check", color: "bg-red-500", pdfKey: "abg" },
-            { name: "POC Prescription", icon: "fa-file-prescription", color: "bg-indigo-500", pdfKey: "poc" },
-            { name: "60month Restart Contract", icon: "fa-file-signature", color: "bg-purple-500", pdfKey: "60m" },
-            { name: "CPAP Requalification", icon: "fa-lungs", color: "bg-orange-500", pdfKey: "cpap" },
-            { name: "Oxygen Requalification", icon: "fa-mask-ventilator", color: "bg-sky-500", pdfKey: "oxygen" },
-            { name: "Discontinue Script", icon: "fa-file-circle-xmark", color: "bg-slate-500", pdfKey: "discontinue" },
+            { name: "6MWT", icon: "fa-person-running", color: "bg-blue-500" },
+            { name: "TSS", icon: "fa-file-medical", color: "bg-green-500" },
+            { name: "ONO", icon: "fa-notes-medical", color: "bg-yellow-500" },
+            { name: "ABG", icon: "fa-vial-circle-check", color: "bg-red-500" },
+            { name: "POC Prescription", icon: "fa-file-prescription", color: "bg-indigo-500" },
+            { name: "60month Restart Contract", icon: "fa-file-signature", color: "bg-purple-500" },
+            { name: "CPAP Requalification", icon: "fa-lungs", color: "bg-orange-500" },
+            { name: "Oxygen Requalification", icon: "fa-mask-ventilator", color: "bg-sky-500" },
+            { name: "Discontinue Script", icon: "fa-file-circle-xmark", color: "bg-slate-500" },
         ];
-
-    
+        
+        // Map document names to their corresponding PDF sample URLs.
+        // Replace the URLs with the actual paths to your PDF files.
+        const pdfUrls = {
+            "6MWT": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            "TSS": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
+            "ONO": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            "ABG": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
+            "POC Prescription": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            "60month Restart Contract": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
+            "CPAP Requalification": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            "Oxygen Requalification": "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf",
+            "Discontinue Script": "#" // Using '#' to signify no file is linked
+        };
 
 
         // --- ELEMENTS ---
@@ -100,7 +112,7 @@
             docs.forEach(doc => {
                 const card = `
                     <div class="document-card ${doc.color} text-white p-6 rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" 
-                         onclick="openModal('${doc.name}', '${doc.pdfKey}')">
+                         onclick="openModal('${doc.name}')">
                         <div class="flex flex-col items-center text-center">
                             <i class="fas ${doc.icon} fa-3x mb-4"></i>
                             <h3 class="text-xl font-semibold">${doc.name}</h3>
@@ -123,10 +135,9 @@
         /**
          * Opens the modal, embeds the PDF, and shows relevant actions.
          * @param {string} docName - The name of the document.
-         * @param {string} pdfKey - The key to find the PDF URL in the `pdfs` object.
          */
-        function openModal(docName, pdfKey) {
-            const pdfUrl = pdfs[pdfKey];
+        function openModal(docName) {
+            const pdfUrl = pdfUrls[docName];
             
             modalTitle.textContent = docName;
             modalContent.innerHTML = ''; // Clear previous content
