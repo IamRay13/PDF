@@ -79,14 +79,14 @@
             { name: "Discontinue Script", icon: "fa-file-circle-xmark", color: "bg-slate-500", pdfKey: "discontinue" },
         ];
 
-        // Map keys to PDF URLs. Placeholders for files not provided yet.
+        // Map keys to PDF URLs. Added #toolbar=0 to hide the default viewer toolbar.
         const pdfs = {
-          "6mwt": "assets/6MWT.pdf#view=FitH",
-          "ono": "assets/ONO.pdf#view=FitH",
-          "tss": "assets/TSS.pdf#view=FitH",
-          "60m": "assets/60monthletter.pdf#view=FitH",
-          "discontinue": "assets/Discontinue Script.pdf#view=FitH",
-          "poc": "assets/POC Rx.pdf#view=FitH",
+          "6mwt": "assets/6MWT.pdf#toolbar=0&view=FitH",
+          "ono": "assets/ONO.pdf#toolbar=0&view=FitH",
+          "tss": "assets/TSS.pdf#toolbar=0&view=FitH",
+          "60m": "assets/60monthletter.pdf#toolbar=0&view=FitH",
+          "discontinue": "assets/Discontinue Script.pdf#toolbar=0&view=FitH",
+          "poc": "assets/POC Rx.pdf#toolbar=0&view=FitH",
           // Placeholders for other documents
           "abg": "#", 
           "cpap": "#",
@@ -148,11 +148,9 @@
                 // If a valid PDF URL exists, embed it
                 modalContent.innerHTML = `<iframe src="${pdfUrl}" class="pdf-viewer rounded-md"></iframe>`;
                 
-                // Add action buttons
+                // Add action buttons - removed download button
                 modalActions.innerHTML = `
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">For editing, please download the file and use a PDF application.</p>
                     <div class="flex flex-col sm:flex-row justify-center gap-4">
-                         <button onclick="downloadPdf('${pdfUrl}', '${docName}')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-download mr-2"></i>Download for Editing</button>
                          <button onclick="sendPdf('${docName}', '${pdfUrl}')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md flex items-center justify-center"><i class="fas fa-paper-plane mr-2"></i>Send Link</button>
                     </div>
                 `;
